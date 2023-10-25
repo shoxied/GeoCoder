@@ -116,9 +116,13 @@ class MainActivity : AppCompatActivity(), Session.SearchListener {
     }
 
     fun MoveToLocation(view: View) {
-        historyList.add(location.text.toString())
-        RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList)
-        makeQuery("${location.text}")
+        if ("${location.text}" != "") {
+            historyList.add("${location.text}")
+            RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList)
+            makeQuery("${location.text}")
+        }else{
+            Toast.makeText(this@MainActivity, "Empty query", Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun historyAnimation(view: View) {
