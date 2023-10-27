@@ -1,15 +1,12 @@
-package com.android.example.geocoder1
+package com.android.example.geocoder1.presentation
 
 import android.os.Bundle
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.example.geocoder1.R
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
@@ -27,10 +24,12 @@ import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 import com.android.example.geocoder1.domain.usecase.HistoryRecyclerAdapter
+import com.android.example.geocoder1.domain.usecase.SearchListener
 
-class MainActivity : AppCompatActivity(), Session.SearchListener {
+class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     var historyList: MutableList<String> = mutableListOf()
+
 
     lateinit var mapView: MapView
 
@@ -40,16 +39,11 @@ class MainActivity : AppCompatActivity(), Session.SearchListener {
     lateinit var searchManager: SearchManager
     lateinit var searchSession: Session
 
-    lateinit var historyLayout: LinearLayout
+    lateinit var historyLayout: androidx.cardview.widget.CardView
     lateinit var location: EditText
-    lateinit var historyAnimationOn: Animation
-    lateinit var historyAnimationOff: Animation
+
     lateinit var RecyclerViewHistory: RecyclerView
     var isAnimationOff: Boolean = true
-
-    fun makeQuery(query: String){
-        searchSession = searchManager.submit(query, VisibleRegionUtils.toPolygon(mapView.map.visibleRegion), SearchOptions(), this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
@@ -62,8 +56,6 @@ class MainActivity : AppCompatActivity(), Session.SearchListener {
 
         location = findViewById(R.id.location)
 
-        historyAnimationOn = AnimationUtils.loadAnimation(this, R.anim.alphaon)
-        historyAnimationOff = AnimationUtils.loadAnimation(this, R.anim.alphaoff)
         historyLayout.alpha = 0.0f
 
         mapView = findViewById(R.id.mapview)
@@ -115,6 +107,10 @@ class MainActivity : AppCompatActivity(), Session.SearchListener {
         Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
+    fun makeQuery(query: String){
+        searchSession = searchManager.submit(query, VisibleRegionUtils.toPolygon(mapView.map.visibleRegion), SearchOptions(), this)
+    }
+
     fun MoveToLocation(view: View) {
         if ("${location.text}" != "") {
             historyList.add("${location.text}")
@@ -128,12 +124,10 @@ class MainActivity : AppCompatActivity(), Session.SearchListener {
     fun historyAnimation(view: View) {
         if (isAnimationOff) {
             historyLayout.alpha = 1.0f
-            historyLayout.isClickable = true
             isAnimationOff = false
         }
         else{
             historyLayout.alpha = 0.0f
-            historyLayout.isClickable = false
             isAnimationOff = true
         }
     }
@@ -142,5 +136,4 @@ class MainActivity : AppCompatActivity(), Session.SearchListener {
         historyList.clear()
         RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList)
     }
-
 }

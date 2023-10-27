@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="20sp"
-            android:text="театры"
+            android:text="Театры"
             android:maxLines="2"
             android:layout_marginStart="7dp"/>
 
