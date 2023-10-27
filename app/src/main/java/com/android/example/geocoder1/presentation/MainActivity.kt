@@ -26,10 +26,10 @@ import com.yandex.runtime.network.RemoteError
 import com.android.example.geocoder1.domain.usecase.HistoryRecyclerAdapter
 import com.android.example.geocoder1.domain.usecase.SearchListener
 
+private const val API_KEY = "76b1bf32-c4dd-4039-a5e0-a879a159d132"
 class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     var historyList: MutableList<String> = mutableListOf()
-
 
     lateinit var mapView: MapView
 
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     var isAnimationOff: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
+        MapKitFactory.setApiKey(API_KEY)
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)

@@ -25,7 +25,6 @@ class SearchListener(ctx: Context): Session.SearchListener {
     private var searchManager: SearchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
     private lateinit var searchSession: Session
 
-
     fun SearchResponse(response: Response, mapView: MapView) {
         val mapObjects: MapObjectCollection = mapView.map.mapObjects
         mapObjects.clear()
