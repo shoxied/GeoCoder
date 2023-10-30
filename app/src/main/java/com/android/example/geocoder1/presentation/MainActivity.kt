@@ -1,8 +1,10 @@
 package com.android.example.geocoder1.presentation
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -37,7 +39,6 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     private lateinit var mapView: MapView
 
     private lateinit var imageMark: ImageProvider
-    private val startLocation: Point = Point(55.030264, 82.922684)
 
     private lateinit var searchManager: SearchManager
     private lateinit var searchSession: Session
@@ -51,6 +52,8 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     private lateinit var historyViewAnimationOn: android.view.animation.Animation
     private lateinit var historyViewAnimationOff: android.view.animation.Animation
 
+    private lateinit var historyClearButton: Button
+
     var objectMapper: ObjectMapper = ObjectMapper()
 //    private fun PutDataToAsset(){
 //        try {
@@ -62,6 +65,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 //        }
 //    }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
         super.onCreate(savedInstanceState)
@@ -69,11 +73,12 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
         setContentView(R.layout.activity_main)
 
         try {
+            val path: File
             val text:String = "sdfsdfsdffsd"
-            objectMapper.writeValue(File("history.json"), text)
-            val fileOutputStream: FileOutputStream = openFileOutput("history.txt", MODE_PRIVATE)
+            val fileOutputStream: FileOutputStream = openFileOutput("C:\\Users\\Oleg\\AndroidStudioProjects\\GeoCoder\\app\\src\\main\\java\\com\\android\\example\\geocoder1\\history.txt", MODE_PRIVATE)
             fileOutputStream.write(text.toByteArray())
             fileOutputStream.close()
+            objectMapper.writeValue(File("C:\\Users\\Oleg\\AndroidStudioProjects\\GeoCoder\\app\\src\\main\\java\\com\\android\\example\\geocoder1\\history.json"), text)
         }
         catch (error:Exception){
             Log.d("Error", "message:${error.message}")
@@ -90,6 +95,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 //        catch (error:Exception){
 //            Log.d("Error", "message: ${error.message}")
 //        }
+        historyClearButton = findViewById(R.id.historyClearButton)
 
         searchEditText = findViewById(R.id.location)
 
@@ -102,11 +108,6 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
         mapView = findViewById(R.id.mapview)
         imageMark = ImageProvider.fromResource(this, R.drawable.markgeo)
-        mapView.mapWindow.map.move(CameraPosition(startLocation, 14.0f, 0.0f, 0.0f),
-            com.yandex.mapkit.Animation(com.yandex.mapkit.Animation.Type.SMOOTH, 5.0f),
-            null
-        )
-        mapView.map.mapObjects.addPlacemark(startLocation, imageMark)
 
         SearchFactory.initialize(this)
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
@@ -129,11 +130,13 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
         mapObjects.clear()
         for(searchResult in response.collection.children){
             val resultLocation = searchResult.obj!!.geometry[0].point!!
-            if(response!=null){
+            if (response!=null) {
                 mapView.map.mapObjects.addPlacemark(resultLocation, imageMark)
-                mapView.mapWindow.map.move(CameraPosition(resultLocation, 14.0f, 0.0f, 0.0f),
+                mapView.mapWindow.map.move(
+                    CameraPosition(resultLocation, 14.0f, 0.0f, 0.0f),
                     com.yandex.mapkit.Animation(com.yandex.mapkit.Animation.Type.SMOOTH, 2.0f),
-                    null)
+                    null
+                )
             }
         }
     }
@@ -167,9 +170,16 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
         if (isAnimationOff) {
             isAnimationOff = false
             historyCardView.startAnimation(historyViewAnimationOn)
+            historyCardView.visibility = View.VISIBLE
+            historyClearButton.visibility = View.VISIBLE
+            RecyclerViewHistory.visibility = View.VISIBLE
+
         }
         else{
             historyCardView.startAnimation(historyViewAnimationOff)
+            historyCardView.visibility = View.GONE
+            historyClearButton.visibility = View.GONE
+            RecyclerViewHistory.visibility = View.GONE
             isAnimationOff = true
         }
     }

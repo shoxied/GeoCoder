@@ -27,6 +27,7 @@
             android:orientation="vertical">
 
             <Button
+                android:id="@+id/historyClearButton"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_margin="3dp"
@@ -86,7 +87,7 @@
     </androidx.cardview.widget.CardView>
 
     <Button
-        android:id="@+id/histryAppear"
+        android:id="@+id/historyButton"
         android:backgroundTint="#4BA2FB"
         android:text="История"
         android:textSize="23sp"
