@@ -1,6 +1,7 @@
 package com.android.example.geocoder1.presentation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -24,39 +25,80 @@ import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 import com.android.example.geocoder1.domain.usecase.HistoryRecyclerAdapter
-import com.android.example.geocoder1.domain.usecase.SearchListener
+import com.fasterxml.jackson.databind.ObjectMapper
+import java.io.File
+import java.io.FileOutputStream
+import java.lang.Exception
 
-private const val API_KEY = "76b1bf32-c4dd-4039-a5e0-a879a159d132"
 class MainActivity : AppCompatActivity(), Session.SearchListener{
 
-    var historyList: MutableList<String> = mutableListOf()
+    private var historyList: MutableList<String> = mutableListOf()
 
-    lateinit var mapView: MapView
+    private lateinit var mapView: MapView
 
-    lateinit var imageMark: ImageProvider
-    val startLocation: Point = Point(55.030264, 82.922684)
+    private lateinit var imageMark: ImageProvider
+    private val startLocation: Point = Point(55.030264, 82.922684)
 
-    lateinit var searchManager: SearchManager
-    lateinit var searchSession: Session
+    private lateinit var searchManager: SearchManager
+    private lateinit var searchSession: Session
 
-    lateinit var historyLayout: androidx.cardview.widget.CardView
-    lateinit var location: EditText
+    private lateinit var historyCardView: androidx.cardview.widget.CardView
+    private lateinit var searchEditText: EditText
 
-    lateinit var RecyclerViewHistory: RecyclerView
-    var isAnimationOff: Boolean = true
+    private lateinit var RecyclerViewHistory: RecyclerView
+    private var isAnimationOff: Boolean = true
+
+    private lateinit var historyViewAnimationOn: android.view.animation.Animation
+    private lateinit var historyViewAnimationOff: android.view.animation.Animation
+
+    var objectMapper: ObjectMapper = ObjectMapper()
+//    private fun PutDataToAsset(){
+//        try {
+//            val text = "sdfsdfsdffsd"
+//            objectMapper.writeValue(File("geocoder1/history.json"), text)
+//        }
+//        catch (error:Exception){
+//            Log.d("Error", "message:${error.message}")
+//        }
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        MapKitFactory.setApiKey(API_KEY)
+        MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
 
+        try {
+            val text:String = "sdfsdfsdffsd"
+            objectMapper.writeValue(File("history.json"), text)
+            val fileOutputStream: FileOutputStream = openFileOutput("history.txt", MODE_PRIVATE)
+            fileOutputStream.write(text.toByteArray())
+            fileOutputStream.close()
+        }
+        catch (error:Exception){
+            Log.d("Error", "message:${error.message}")
+        }
+//      try {
+//            jsonOnbject = JSONObject(GetDataFromAsset("history.json"))
+//            jsonArray = jsonOnbject.getJSONArray("history")
+//
+//            for (i in 0 until jsonArray.length()) {
+//                var userData: JSONObject = jsonArray.getJSONObject(i)
+//                historyList.add("$userData")
+//            }
+//        }
+//        catch (error:Exception){
+//            Log.d("Error", "message: ${error.message}")
+//        }
+
+        searchEditText = findViewById(R.id.location)
+
         RecyclerViewHistory = findViewById(R.id.RecyclerViewHistory)
-        historyLayout = findViewById(R.id.historyLayout)
+        historyCardView = findViewById(R.id.historyCardView)
 
-        location = findViewById(R.id.location)
-
-        historyLayout.alpha = 0.0f
+        historyViewAnimationOn = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.history_view_animation_on)
+        historyViewAnimationOff = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.history_view_animation_off)
+        historyCardView.startAnimation(historyViewAnimationOff)
 
         mapView = findViewById(R.id.mapview)
         imageMark = ImageProvider.fromResource(this, R.drawable.markgeo)
@@ -112,10 +154,10 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     }
 
     fun MoveToLocation(view: View) {
-        if ("${location.text}" != "") {
-            historyList.add("${location.text}")
+        if ("${searchEditText.text}" != "") {
+            historyList.add("${searchEditText.text}")
             RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList)
-            makeQuery("${location.text}")
+            makeQuery("${searchEditText.text}")
         }else{
             Toast.makeText(this@MainActivity, "Empty query", Toast.LENGTH_SHORT).show()
         }
@@ -123,11 +165,11 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     fun historyAnimation(view: View) {
         if (isAnimationOff) {
-            historyLayout.alpha = 1.0f
             isAnimationOff = false
+            historyCardView.startAnimation(historyViewAnimationOn)
         }
         else{
-            historyLayout.alpha = 0.0f
+            historyCardView.startAnimation(historyViewAnimationOff)
             isAnimationOff = true
         }
     }

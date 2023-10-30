@@ -1,10 +1,10 @@
 package com.android.example.geocoder1.domain.usecase
 
-import com.android.example.geocoder1.domain.models.SaveListHistoryParam
-import com.android.example.geocoder1.domain.repository.MyRepository
+import com.android.example.geocoder1.data.repository.MyRepositoryImpl
+import com.android.example.geocoder1.domain.models.ListHistory
 
-class SaveTextHistoryUseCase(private val repository: MyRepository) {
-    fun execute(param: SaveListHistoryParam): Boolean {
-        return repository.saveHistory(param)
+class SaveListHistoryUseCase(private val repository: MyRepositoryImpl) {
+    fun execute(listHistory: ListHistory): Boolean {
+        return repository.saveHistory(listHistory)
     }
 }
