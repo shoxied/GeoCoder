@@ -14,51 +14,46 @@
     </com.yandex.mapkit.mapview.MapView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/historyLayout"
-        android:layout_width="250dp"
-        android:layout_height="450dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:cardCornerRadius="10dp">
+        android:id="@+id/historyCardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/cardView">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
+            android:animateLayoutChanges="true"
             android:background="@color/white"
-            android:animateLayoutChanges="true">
+            android:orientation="vertical">
 
             <Button
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:text="Очистить историю"
-                android:onClick="historyClear"
+                android:layout_margin="3dp"
                 android:backgroundTint="#4BA2FB"
-                android:textSize="22sp"
-                android:layout_margin="3dp"/>
+                android:onClick="historyClear"
+                android:text="Очистить историю"
+                android:textSize="21sp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/RecyclerViewHistory"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                android:scrollbarStyle="outsideInset"
                 android:scrollbars="vertical"
-                tools:listitem="@layout/history_layout"
-                tools:itemCount="15"/>
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="15"
+                tools:listitem="@layout/history_layout" />
 
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 
 
-
     <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_margin="4dp"
-        app:cardCornerRadius="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -80,13 +75,13 @@
             android:id="@+id/buttonSearch"
             android:layout_width="70dp"
             android:layout_height="50dp"
+            android:layout_gravity="end"
             android:layout_marginTop="3dp"
             android:layout_marginEnd="3dp"
             android:backgroundTint="@android:color/transparent"
             android:onClick="MoveToLocation"
             android:text="🔍︎"
-            android:textSize="21sp"
-            android:layout_gravity="end"/>
+            android:textSize="21sp" />
 
     </androidx.cardview.widget.CardView>
 
