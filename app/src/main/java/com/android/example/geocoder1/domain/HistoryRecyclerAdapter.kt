@@ -1,4 +1,4 @@
-package com.android.example.geocoder1.domain.usecase
+package com.android.example.geocoder1.domain
 
 import android.view.LayoutInflater
 import android.view.View

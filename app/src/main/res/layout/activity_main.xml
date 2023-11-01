@@ -87,6 +87,15 @@
     </androidx.cardview.widget.CardView>
 
     <Button
+        android:id="@+id/readDataButton"
+        android:layout_width="140dp"
+        android:layout_height="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="Read"
+        android:onClick="readData"/>
+
+    <Button
         android:id="@+id/historyButton"
         android:backgroundTint="#4BA2FB"
         android:text="История"

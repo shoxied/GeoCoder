@@ -1,6 +1,5 @@
 package com.android.example.geocoder1.presentation
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -10,8 +9,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.android.example.geocoder1.R
+import com.android.example.geocoder1.data.repository.FileRepositoryImpl
 import com.yandex.mapkit.MapKitFactory
-import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectCollection
 import com.yandex.mapkit.map.VisibleRegionUtils
@@ -26,15 +25,13 @@ import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import com.android.example.geocoder1.domain.usecase.HistoryRecyclerAdapter
-import com.fasterxml.jackson.databind.ObjectMapper
-import java.io.File
-import java.io.FileOutputStream
+import com.android.example.geocoder1.domain.HistoryRecyclerAdapter
+import com.android.example.geocoder1.domain.models.ListHistory
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity(), Session.SearchListener{
 
-    private var historyList: MutableList<String> = mutableListOf()
+    private var historyList: ListHistory = ListHistory()
 
     private lateinit var mapView: MapView
 
@@ -54,17 +51,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     private lateinit var historyClearButton: Button
 
-    var objectMapper: ObjectMapper = ObjectMapper()
-//    private fun PutDataToAsset(){
-//        try {
-//            val text = "sdfsdfsdffsd"
-//            objectMapper.writeValue(File("geocoder1/history.json"), text)
-//        }
-//        catch (error:Exception){
-//            Log.d("Error", "message:${error.message}")
-//        }
-//    }
-
+    private var fileRepository: FileRepositoryImpl = FileRepositoryImpl()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
@@ -72,29 +59,6 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
 
-        try {
-            val path: File
-            val text:String = "sdfsdfsdffsd"
-            val fileOutputStream: FileOutputStream = openFileOutput("C:\\Users\\Oleg\\AndroidStudioProjects\\GeoCoder\\app\\src\\main\\java\\com\\android\\example\\geocoder1\\history.txt", MODE_PRIVATE)
-            fileOutputStream.write(text.toByteArray())
-            fileOutputStream.close()
-            objectMapper.writeValue(File("C:\\Users\\Oleg\\AndroidStudioProjects\\GeoCoder\\app\\src\\main\\java\\com\\android\\example\\geocoder1\\history.json"), text)
-        }
-        catch (error:Exception){
-            Log.d("Error", "message:${error.message}")
-        }
-//      try {
-//            jsonOnbject = JSONObject(GetDataFromAsset("history.json"))
-//            jsonArray = jsonOnbject.getJSONArray("history")
-//
-//            for (i in 0 until jsonArray.length()) {
-//                var userData: JSONObject = jsonArray.getJSONObject(i)
-//                historyList.add("$userData")
-//            }
-//        }
-//        catch (error:Exception){
-//            Log.d("Error", "message: ${error.message}")
-//        }
         historyClearButton = findViewById(R.id.historyClearButton)
 
         searchEditText = findViewById(R.id.location)
@@ -111,6 +75,15 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
         SearchFactory.initialize(this)
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
+
+        try {
+            val messageFile = fileRepository.readDataFromAsset(applicationContext.dataDir)
+            historyList = messageFile
+            RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+        }
+        catch (error:Exception){
+            Log.d("Error", "$error")
+        }
     }
 
     override fun onStart() {
@@ -158,8 +131,9 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     fun MoveToLocation(view: View) {
         if ("${searchEditText.text}" != "") {
-            historyList.add("${searchEditText.text}")
-            RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList)
+            historyList.listHistory.add("${searchEditText.text}")
+            RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+            fileRepository.putDataToAsset(historyList, applicationContext.dataDir)
             makeQuery("${searchEditText.text}")
         }else{
             Toast.makeText(this@MainActivity, "Empty query", Toast.LENGTH_SHORT).show()
@@ -185,7 +159,19 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     }
 
     fun historyClear(view: View) {
-        historyList.clear()
-        RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList)
+        historyList.listHistory.clear()
+        RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+        fileRepository.putDataToAsset(historyList, applicationContext.dataDir)
+    }
+
+    fun readData(view: View) {
+        try {
+            Log.i("filesDir", applicationContext.dataDir.absolutePath)
+            val messageFile = fileRepository.readDataFromAsset(applicationContext.dataDir)
+            Log.i("fileHistory", "$messageFile")
+        }
+        catch (e:Exception){
+            Log.d("EError", "${e.message}")
+        }
     }
 }
