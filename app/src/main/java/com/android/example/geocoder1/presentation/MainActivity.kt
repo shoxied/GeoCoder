@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.android.example.geocoder1.R
 import com.android.example.geocoder1.data.repository.FileRepositoryImpl
+import com.android.example.geocoder1.data.storage.ObjectMapperStorage
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectCollection
@@ -25,11 +26,15 @@ import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import com.android.example.geocoder1.domain.HistoryRecyclerAdapter
+import com.android.example.geocoder1.domain.recyclerview.HistoryRecyclerAdapter
 import com.android.example.geocoder1.domain.models.ListHistory
+import com.android.example.geocoder1.domain.usecase.PutDataToAssetUseCase
+import com.android.example.geocoder1.domain.usecase.ReadDataFromAssetUseCase
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity(), Session.SearchListener{
+
+
 
     private var historyList: ListHistory = ListHistory()
 
@@ -43,7 +48,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     private lateinit var historyCardView: androidx.cardview.widget.CardView
     private lateinit var searchEditText: EditText
 
-    private lateinit var RecyclerViewHistory: RecyclerView
+    private lateinit var recyclerViewHistory: RecyclerView
     private var isAnimationOff: Boolean = true
 
     private lateinit var historyViewAnimationOn: android.view.animation.Animation
@@ -51,7 +56,11 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     private lateinit var historyClearButton: Button
 
-    private var fileRepository: FileRepositoryImpl = FileRepositoryImpl()
+    private val fileRepository = FileRepositoryImpl(fileStorage = ObjectMapperStorage())
+
+    private val putDataToAssetUseCase = PutDataToAssetUseCase(myFileRepository = fileRepository)
+
+    private val readDataFromAssetUseCase = ReadDataFromAssetUseCase(myFileRepository = fileRepository)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
@@ -63,7 +72,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
         searchEditText = findViewById(R.id.location)
 
-        RecyclerViewHistory = findViewById(R.id.RecyclerViewHistory)
+        recyclerViewHistory = findViewById(R.id.RecyclerViewHistory)
         historyCardView = findViewById(R.id.historyCardView)
 
         historyViewAnimationOn = android.view.animation.AnimationUtils.loadAnimation(this, R.anim.history_view_animation_on)
@@ -77,9 +86,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
 
         try {
-            val messageFile = fileRepository.readDataFromAsset(applicationContext.dataDir)
-            historyList = messageFile
-            RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+            recyclerViewHistory.adapter = HistoryRecyclerAdapter(readDataFromAssetUseCase.execute(applicationContext.dataDir).listHistory)
         }
         catch (error:Exception){
             Log.d("Error", "$error")
@@ -132,8 +139,9 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     fun MoveToLocation(view: View) {
         if ("${searchEditText.text}" != "") {
             historyList.listHistory.add("${searchEditText.text}")
-            RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
-            fileRepository.putDataToAsset(historyList, applicationContext.dataDir)
+            recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+            putDataToAssetUseCase.execute(historyList, applicationContext.dataDir)
+            Log.i("fileHistory", "$historyList")
             makeQuery("${searchEditText.text}")
         }else{
             Toast.makeText(this@MainActivity, "Empty query", Toast.LENGTH_SHORT).show()
@@ -146,29 +154,29 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
             historyCardView.startAnimation(historyViewAnimationOn)
             historyCardView.visibility = View.VISIBLE
             historyClearButton.visibility = View.VISIBLE
-            RecyclerViewHistory.visibility = View.VISIBLE
+            recyclerViewHistory.visibility = View.VISIBLE
 
         }
         else{
             historyCardView.startAnimation(historyViewAnimationOff)
             historyCardView.visibility = View.GONE
             historyClearButton.visibility = View.GONE
-            RecyclerViewHistory.visibility = View.GONE
+            recyclerViewHistory.visibility = View.GONE
             isAnimationOff = true
         }
     }
 
     fun historyClear(view: View) {
         historyList.listHistory.clear()
-        RecyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+        recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
         fileRepository.putDataToAsset(historyList, applicationContext.dataDir)
     }
 
     fun readData(view: View) {
         try {
             Log.i("filesDir", applicationContext.dataDir.absolutePath)
-            val messageFile = fileRepository.readDataFromAsset(applicationContext.dataDir)
-            Log.i("fileHistory", "$messageFile")
+            val messageFile = readDataFromAssetUseCase.execute(applicationContext.dataDir)
+            Log.i("fileHistoryMessageFile", "$messageFile")
         }
         catch (e:Exception){
             Log.d("EError", "${e.message}")
