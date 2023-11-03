@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -32,9 +33,7 @@ import com.android.example.geocoder1.domain.usecase.PutDataToAssetUseCase
 import com.android.example.geocoder1.domain.usecase.ReadDataFromAssetUseCase
 import java.lang.Exception
 
-class MainActivity : AppCompatActivity(), Session.SearchListener{
-
-
+class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecyclerAdapter.Listener{
 
     private var historyList: ListHistory = ListHistory()
 
@@ -62,6 +61,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     private val readDataFromAssetUseCase = ReadDataFromAssetUseCase(myFileRepository = fileRepository)
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
         super.onCreate(savedInstanceState)
@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
 
         try {
-            recyclerViewHistory.adapter = HistoryRecyclerAdapter(readDataFromAssetUseCase.execute(applicationContext.dataDir).listHistory)
+            recyclerViewHistory.adapter = HistoryRecyclerAdapter(readDataFromAssetUseCase.execute(applicationContext.dataDir).listHistory, this)
         }
         catch (error:Exception){
             Log.d("Error", "$error")
@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
     fun MoveToLocation(view: View) {
         if ("${searchEditText.text}" != "") {
             historyList.listHistory.add("${searchEditText.text}")
-            recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+            recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory, this)
             putDataToAssetUseCase.execute(historyList, applicationContext.dataDir)
             Log.i("fileHistory", "$historyList")
             makeQuery("${searchEditText.text}")
@@ -168,18 +168,17 @@ class MainActivity : AppCompatActivity(), Session.SearchListener{
 
     fun historyClear(view: View) {
         historyList.listHistory.clear()
-        recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory)
+        recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory, this)
         fileRepository.putDataToAsset(historyList, applicationContext.dataDir)
+        historyCardView.startAnimation(historyViewAnimationOff)
+        historyCardView.visibility = View.GONE
+        historyClearButton.visibility = View.GONE
+        recyclerViewHistory.visibility = View.GONE
+        isAnimationOff = true
     }
 
-    fun readData(view: View) {
-        try {
-            Log.i("filesDir", applicationContext.dataDir.absolutePath)
-            val messageFile = readDataFromAssetUseCase.execute(applicationContext.dataDir)
-            Log.i("fileHistoryMessageFile", "$messageFile")
-        }
-        catch (e:Exception){
-            Log.d("EError", "${e.message}")
-        }
+    override fun clickHistoryItem(itemViewText: TextView) {
+        val tempText: TextView = itemViewText.findViewById(R.id.textHistory)
+        searchEditText.setText(tempText.text)
     }
 }

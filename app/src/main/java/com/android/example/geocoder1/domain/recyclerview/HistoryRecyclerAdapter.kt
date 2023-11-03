@@ -7,10 +7,16 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.android.example.geocoder1.R
 
-class HistoryRecyclerAdapter(private val names: List<String>): RecyclerView.Adapter<HistoryRecyclerAdapter.MyViewHolder>(){
+class HistoryRecyclerAdapter(private val names: List<String>, private val listener: Listener): RecyclerView.Adapter<HistoryRecyclerAdapter.MyViewHolder>(){
 
     class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val textHistory: TextView = itemView.findViewById(R.id.textHistory)
+
+        fun click(listener: Listener){
+            textHistory.setOnClickListener {
+                listener.clickHistoryItem(itemViewText = textHistory)
+            }
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -22,5 +28,10 @@ class HistoryRecyclerAdapter(private val names: List<String>): RecyclerView.Adap
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         holder.textHistory.text = names[position]
+        holder.click(listener)
+    }
+
+    interface Listener{
+        fun clickHistoryItem(itemViewText: TextView)
     }
 }

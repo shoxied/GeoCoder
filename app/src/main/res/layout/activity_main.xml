@@ -13,6 +13,20 @@
         android:layout_height="match_parent">
     </com.yandex.mapkit.mapview.MapView>
 
+
+    <Button
+        android:id="@+id/historyButton"
+        android:backgroundTint="#4BA2FB"
+        android:text="История"
+        android:textSize="23sp"
+        android:onClick="historyAnimation"
+        android:layout_width="140dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.cardview.widget.CardView
         android:id="@+id/historyCardView"
         android:layout_width="match_parent"
@@ -21,7 +35,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:animateLayoutChanges="true"
             android:background="@color/white"
             android:orientation="vertical">
@@ -39,7 +53,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/RecyclerViewHistory"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:scrollbarStyle="outsideInset"
                 android:scrollbars="vertical"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
@@ -86,27 +100,6 @@
 
     </androidx.cardview.widget.CardView>
 
-    <Button
-        android:id="@+id/readDataButton"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="Read"
-        android:onClick="readData"/>
-
-    <Button
-        android:id="@+id/historyButton"
-        android:backgroundTint="#4BA2FB"
-        android:text="История"
-        android:textSize="23sp"
-        android:onClick="historyAnimation"
-        android:layout_width="140dp"
-        android:layout_height="50dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
