@@ -6,7 +6,7 @@ import java.io.File
 
 class PutDataToAssetUseCase(private val myFileRepository: MyFileRepository) {
 
-    fun execute(listHistory: ListHistory, path: File): Boolean{
-        return myFileRepository.putDataToAsset(listHistory = listHistory, path = path)
+    fun execute(listHistory: ListHistory, path: File){
+        myFileRepository.putDataToAsset(listHistory = listHistory, path = path)
     }
 }

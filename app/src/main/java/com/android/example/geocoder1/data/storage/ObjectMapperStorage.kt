@@ -7,13 +7,12 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 
 class ObjectMapperStorage: FileStorage {
-    override fun putDataToAsset(history: History, path: File): Boolean {
+    override fun putDataToAsset(history: History, path: File){
 
         FileOutputStream(File(path, "history.json")).use { outputStream ->
             ObjectMapper().writeValue(outputStream, history)
         }
 
-        return true
     }
 
     override fun readDataFromAsset(path: File): History{

@@ -10,8 +10,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.android.example.geocoder1.R
-import com.android.example.geocoder1.data.repository.FileRepositoryImpl
-import com.android.example.geocoder1.data.storage.ObjectMapperStorage
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectCollection
@@ -29,8 +27,6 @@ import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 import com.android.example.geocoder1.domain.recyclerview.HistoryRecyclerAdapter
 import com.android.example.geocoder1.domain.models.ListHistory
-import com.android.example.geocoder1.domain.usecase.PutDataToAssetUseCase
-import com.android.example.geocoder1.domain.usecase.ReadDataFromAssetUseCase
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecyclerAdapter.Listener{
@@ -55,18 +51,14 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
 
     private lateinit var historyClearButton: Button
 
-    private val fileRepository = FileRepositoryImpl(fileStorage = ObjectMapperStorage())
-
-    private val putDataToAssetUseCase = PutDataToAssetUseCase(myFileRepository = fileRepository)
-
-    private val readDataFromAssetUseCase = ReadDataFromAssetUseCase(myFileRepository = fileRepository)
-
+    private lateinit var vm: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.setApiKey("76b1bf32-c4dd-4039-a5e0-a879a159d132")
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
+        vm = MainViewModel()
 
         historyClearButton = findViewById(R.id.historyClearButton)
 
@@ -85,12 +77,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
         SearchFactory.initialize(this)
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
 
-        try {
-            recyclerViewHistory.adapter = HistoryRecyclerAdapter(readDataFromAssetUseCase.execute(applicationContext.dataDir).listHistory, this)
-        }
-        catch (error:Exception){
-            Log.d("Error", "$error")
-        }
+        recyclerViewHistory.adapter = HistoryRecyclerAdapter(vm.readData(applicationContext.dataDir).listHistory, this)
     }
 
     override fun onStart() {
@@ -140,7 +127,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
         if ("${searchEditText.text}" != "") {
             historyList.listHistory.add("${searchEditText.text}")
             recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory, this)
-            putDataToAssetUseCase.execute(historyList, applicationContext.dataDir)
+            vm.putData(historyList, applicationContext.dataDir)
             Log.i("fileHistory", "$historyList")
             makeQuery("${searchEditText.text}")
         }else{
@@ -169,7 +156,7 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
     fun historyClear(view: View) {
         historyList.listHistory.clear()
         recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory, this)
-        fileRepository.putDataToAsset(historyList, applicationContext.dataDir)
+        vm.putData(historyList, applicationContext.dataDir)
         historyCardView.startAnimation(historyViewAnimationOff)
         historyCardView.visibility = View.GONE
         historyClearButton.visibility = View.GONE

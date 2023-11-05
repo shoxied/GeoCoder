@@ -5,7 +5,7 @@ import java.io.File
 
 
 interface MyFileRepository {
-    fun putDataToAsset (listHistory: ListHistory, path: File): Boolean
+    fun putDataToAsset (listHistory: ListHistory, path: File)
 
     fun readDataFromAsset (path: File): ListHistory
 }

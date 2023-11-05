@@ -7,10 +7,9 @@ import com.android.example.geocoder1.domain.repository.MyFileRepository
 import java.io.File
 
 class FileRepositoryImpl(private val fileStorage: FileStorage): MyFileRepository{
-    override fun putDataToAsset(listHistory: ListHistory, path: File): Boolean {
+    override fun putDataToAsset(listHistory: ListHistory, path: File) {
         val history = History(history = listHistory.listHistory)
-
-        return fileStorage.putDataToAsset(history, path)
+        fileStorage.putDataToAsset(history, path)
     }
 
     override fun readDataFromAsset(path: File): ListHistory {
