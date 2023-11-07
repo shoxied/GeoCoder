@@ -25,9 +25,8 @@ import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import com.android.example.geocoder1.domain.recyclerview.HistoryRecyclerAdapter
+import com.android.example.geocoder1.presentation.recyclerview.HistoryRecyclerAdapter
 import com.android.example.geocoder1.domain.models.ListHistory
-import java.lang.Exception
 
 class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecyclerAdapter.Listener{
 

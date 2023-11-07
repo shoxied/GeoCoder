@@ -1,4 +1,4 @@
-package com.android.example.geocoder1.domain.recyclerview
+package com.android.example.geocoder1.presentation.recyclerview
 
 import android.view.LayoutInflater
 import android.view.View

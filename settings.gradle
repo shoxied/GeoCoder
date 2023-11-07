@@ -14,3 +14,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "GeoCoder1"
 include ':app'
+include ':domain'
+include ':data'

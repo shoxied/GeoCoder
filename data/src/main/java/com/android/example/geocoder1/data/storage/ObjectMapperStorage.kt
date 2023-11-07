@@ -1,6 +1,5 @@
 package com.android.example.geocoder1.data.storage
 
-import com.android.example.geocoder1.domain.models.ListHistory
 import com.fasterxml.jackson.databind.ObjectMapper
 import java.io.File
 import java.io.FileInputStream
@@ -15,7 +14,7 @@ class ObjectMapperStorage: FileStorage {
 
     }
 
-    override fun readDataFromAsset(path: File): History{
+    override fun readDataFromAsset(path: File): History {
 
         return FileInputStream(File(path,"history.json")).use { inputStream ->
             ObjectMapper().readValue(inputStream, History::class.java)

@@ -6,7 +6,7 @@ import java.io.File
 
 class ReadDataFromAssetUseCase(private val myFileRepository: MyFileRepository) {
 
-    fun execute(path: File): ListHistory{
+    fun execute(path: File): ListHistory {
         return myFileRepository.readDataFromAsset(path = path)
     }
 }
