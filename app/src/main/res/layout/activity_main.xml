@@ -94,7 +94,7 @@
             android:layout_marginTop="3dp"
             android:layout_marginEnd="3dp"
             android:backgroundTint="@android:color/transparent"
-            android:onClick="MoveToLocation"
+            android:onClick="moveToLocation"
             android:text="🔍︎"
             android:textSize="21sp" />
 

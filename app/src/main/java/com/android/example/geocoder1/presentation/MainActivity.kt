@@ -8,8 +8,12 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.android.example.geocoder1.R
+import com.android.example.geocoder1.domain.models.ListHistory
+import com.android.example.geocoder1.recyclerview.HistoryRecyclerAdapter
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectCollection
@@ -25,8 +29,6 @@ import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
-import com.android.example.geocoder1.presentation.recyclerview.HistoryRecyclerAdapter
-import com.android.example.geocoder1.domain.models.ListHistory
 
 class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecyclerAdapter.Listener{
 
@@ -57,7 +59,12 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         setContentView(R.layout.activity_main)
-        vm = MainViewModel()
+
+        vm = ViewModelProvider(this, MainViewModelFactory())[MainViewModel::class.java]
+
+        vm.getHistoryLive().observe(this, Observer {historyLive->
+            historyList.listHistory.addAll(historyLive.listHistory)}
+       )
 
         historyClearButton = findViewById(R.id.historyClearButton)
 
@@ -76,7 +83,8 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
         SearchFactory.initialize(this)
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.COMBINED)
 
-        recyclerViewHistory.adapter = HistoryRecyclerAdapter(vm.readData(applicationContext.dataDir).listHistory, this)
+        vm.readData(applicationContext.dataDir)
+        recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory, this)
     }
 
     override fun onStart() {
@@ -118,18 +126,17 @@ class MainActivity : AppCompatActivity(), Session.SearchListener, HistoryRecycle
         Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
-    fun makeQuery(query: String){
+    private fun makeQuery(query: String){
         searchSession = searchManager.submit(query, VisibleRegionUtils.toPolygon(mapView.map.visibleRegion), SearchOptions(), this)
     }
 
-    fun MoveToLocation(view: View) {
+    fun moveToLocation(view: View) {
         if ("${searchEditText.text}" != "") {
             historyList.listHistory.add("${searchEditText.text}")
             recyclerViewHistory.adapter = HistoryRecyclerAdapter(historyList.listHistory, this)
             vm.putData(historyList, applicationContext.dataDir)
-            Log.i("fileHistory", "$historyList")
             makeQuery("${searchEditText.text}")
-        }else{
+        } else {
             Toast.makeText(this@MainActivity, "Empty query", Toast.LENGTH_SHORT).show()
         }
     }

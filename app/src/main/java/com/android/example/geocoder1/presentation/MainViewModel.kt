@@ -1,26 +1,28 @@
 package com.android.example.geocoder1.presentation
 
+import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.android.example.geocoder1.data.repository.FileRepositoryImpl
-import com.android.example.geocoder1.data.storage.ObjectMapperStorage
 import com.android.example.geocoder1.domain.models.ListHistory
 import com.android.example.geocoder1.domain.usecase.PutDataToAssetUseCase
 import com.android.example.geocoder1.domain.usecase.ReadDataFromAssetUseCase
 import java.io.File
+import java.lang.Exception
 
-class MainViewModel: ViewModel() {
+class MainViewModel(
+    private val putDataToAssetUseCase: PutDataToAssetUseCase,
+    private val readDataFromAssetUseCase: ReadDataFromAssetUseCase
+    ): ViewModel() {
 
-    private val fileRepository =
-        FileRepositoryImpl(fileStorage = ObjectMapperStorage())
+    private var historyLive = MutableLiveData<ListHistory>()
 
-    private val putDataToAssetUseCase =
-        PutDataToAssetUseCase(myFileRepository = fileRepository)
+    fun getHistoryLive(): LiveData<ListHistory>{
+        return historyLive
+    }
 
-    private val readDataFromAssetUseCase =
-        ReadDataFromAssetUseCase(myFileRepository = fileRepository)
-
-    fun readData(file: File): ListHistory {
-        return readDataFromAssetUseCase.execute(file)
+    fun readData(file: File) {
+        historyLive.value = readDataFromAssetUseCase.execute(file)
     }
 
     fun putData(historyList: ListHistory, file: File){
